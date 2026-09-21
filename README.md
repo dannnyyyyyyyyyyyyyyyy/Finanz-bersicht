@@ -1,3 +1,6 @@
+## Fix 7.1 – Kategorien
+Kategorien werden jetzt zuverlässig in IndexedDB gespeichert, nach dem Anlegen sofort in der Galerie angezeigt und unmittelbar in allen Kategorie-Auswahllisten verfügbar.
+
 # Meine Ausgaben – lokale Finanz-App
 
 Eine mobile-first Progressive Web App zur lokalen Erfassung und Analyse von Einnahmen und Ausgaben. Keine Serverdatenbank, keine Registrierung und keine feste Kategorie-Liste.
