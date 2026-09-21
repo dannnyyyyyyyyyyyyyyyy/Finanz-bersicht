@@ -49,3 +49,15 @@ Die Buchungen werden im Browser im IndexedDB-Speicher des jeweiligen Geräts ges
 ## Hinweis
 
 Das Projekt ist als persönliche lokale Ausgaben-App gedacht. Backups solltest du selbst sicher aufbewahren.
+
+
+## Aktuelle Funktionen
+- Übersicht mit frei wählbarem Monat- und Jahrfilter
+- Kalender und Alle Ausgaben
+- Kategorien und Händler lokal verwaltbar
+- Analysen und Erkenntnisse
+- Lokale Speicherung per IndexedDB
+- JSON- und CSV-Export
+- PWA mit Offline-Unterstützung und automatischem Update
+
+Die früheren Bereiche „Buchungen“ und „Budgets“ sind in dieser Version aus der Oberfläche entfernt.
