@@ -244,6 +244,59 @@ $$('[data-merdel]').forEach(b=>b.onclick=async()=>{const m=state.merchants.find(
 $$('[data-meredit]').forEach(b=>b.onclick=()=>editMerchant(b.dataset.meredit));
 $$('[data-rec-del]').forEach(b=>b.onclick=async()=>{await del('recurring',b.dataset.recDel);state.recurring=state.recurring.filter(x=>x.id!==b.dataset.recDel);renderAll()});$$('[data-manage-item-toggle]').forEach(h=>h.onclick=()=>h.closest('.manage-item').classList.toggle('open'));$$('[data-manage-section]').forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.manageSection);el.classList.toggle('collapsed');b.textContent=el.classList.contains('collapsed')?'+':'−'})
 }
+function download(filename,content,mime='application/octet-stream'){
+ const blob=content instanceof Blob?content:new Blob([content],{type:mime});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download=filename;a.rel='noopener';a.style.display='none';
+ document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},1000);
+}
+function backupPayload(){
+ return {
+   format:'meine-ausgaben-backup',version:1,exportedAt:new Date().toISOString(),
+   entries:Array.isArray(state.entries)?state.entries:[],
+   categories:Array.isArray(state.categories)?state.categories:[],
+   merchants:Array.isArray(state.merchants)?state.merchants:[],
+   payments:Array.isArray(state.payments)?state.payments:[],
+   budgets:Array.isArray(state.budgets)?state.budgets:[],
+   recurring:Array.isArray(state.recurring)?state.recurring:[]
+ };
+}
+async function exportBackup(){
+ try{
+   const json=JSON.stringify(backupPayload(),null,2);
+   download(`meine-ausgaben-backup-${isoToday()}.json`,json,'application/json;charset=utf-8');
+   toast('Backup exportiert');
+ }catch(e){console.error(e);toast('Backup konnte nicht exportiert werden')}
+}
+function csv(){
+ const rows=[['Datum','Typ','Betrag','Beschreibung','Händler','Kategorie','Zahlungsart','Notiz']];
+ for(const e of state.entries||[]) rows.push([e.date,e.type==='income'?'Einnahme':'Ausgabe',Number(e.amount||0).toFixed(2).replace('.',','),e.description||'',e.merchant||'',e.category||'',e.payment||'',e.note||'']);
+ return rows.map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(';')).join('\r\n');
+}
+async function importBackup(file){
+ try{
+   if(!file)return;
+   const text=await file.text();
+   const data=JSON.parse(text);
+   if(!data||typeof data!=='object'||!Array.isArray(data.entries))throw new Error('Ungültiges Backup');
+   const entries=data.entries.map(e=>({...e,id:e.id||uid(),type:e.type==='income'?'income':'expense'}));
+   const categories=Array.isArray(data.categories)?data.categories.map(c=>({...c,id:c.id||uid(),name:String(c.name||'').trim()})).filter(c=>c.name):[];
+   const merchants=Array.isArray(data.merchants)?data.merchants.map(m=>({...m,id:m.id||uid(),name:String(m.name||'').trim()})).filter(m=>m.name):[];
+   const payments=Array.isArray(data.payments)?data.payments:[];
+   const budgets=Array.isArray(data.budgets)?data.budgets:[];
+   const recurring=Array.isArray(data.recurring)?data.recurring:[];
+   const seen=new Set(categories.map(c=>c.name.toLowerCase()));
+   for(const e of entries){const name=String(e.category||'').trim();if(name&&!seen.has(name.toLowerCase())){categories.push({id:uid(),name});seen.add(name.toLowerCase())}}
+   const payload={entries,categories,merchants,payments,budgets,recurring};
+   if(!confirm(`Backup importieren? Dabei werden die aktuell gespeicherten Daten ersetzt.\n\n${entries.length} Buchungen · ${categories.length} Kategorien · ${merchants.length} Händler`))return;
+   for(const store of Object.keys(payload)){
+     await clearStore(store);
+     for(const item of payload[store]) await put(store,item);
+   }
+   await load();fillSelects();renderAll();toast('Backup importiert');
+ }catch(e){console.error(e);toast('Backup konnte nicht gelesen werden')}
+ finally{const input=$('#importFile');if(input)input.value=''}
+}
 function showPage(p,persist=true){
  state.page=p;
  if(persist)saveUiState({page:p,scrollY:0});
