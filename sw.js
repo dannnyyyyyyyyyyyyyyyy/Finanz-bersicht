@@ -1,4 +1,4 @@
-const CACHE = 'ausgaben-v20';
+const CACHE = 'ausgaben-v21';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', event => {

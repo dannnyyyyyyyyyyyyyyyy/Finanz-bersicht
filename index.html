@@ -174,7 +174,7 @@ function openDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB,4);r.
 async function load(){[state.entries,state.categories,state.merchants,state.payments,state.budgets,state.recurring,state.fixedDeposits]=await Promise.all(['entries','categories','merchants','payments','budgets','recurring','fixedDeposits'].map(all));renderAll()}
 function saveMerchant(name){name=(name||'').trim();if(!name)return;let found=state.merchants.find(x=>x.name.toLowerCase()===name.toLowerCase());if(found){found.uses=(found.uses||0)+1;put('merchants',found)}else{const m={id:uid(),name,uses:1,lastUsed:new Date().toISOString()};state.merchants.push(m);put('merchants',m)}}
 function saveCategory(name){name=(name||'').trim();if(!name)return null;const found=state.categories.find(x=>x.name.trim().toLowerCase()===name.toLowerCase());if(found)return found;const c={id:uid(),name};state.categories.push(c);return c}
-function monthKey(d){return d.slice(0,7)} function inRange(e,from,to){return (!from||e.date>=from)&&(!to||e.date<=to)} function expenseEntries(){return state.entries.filter(e=>e.type!=='income')} function sum(arr){return arr.reduce((a,e)=>a+Number(e.amount||0),0)}
+function monthKey(d){return d.slice(0,7)} function inRange(e,from,to){return (!from||e.date>=from)&&(!to||e.date<=to)} function expenseEntries(){return state.entries.filter(e=>e.type!=='income')} function sum(arr){return arr.reduce((a,e)=>a+(typeof e==='number'?Number(e||0):Number(e?.amount||0)),0)}
 function fillSelects(){
  const cats=[...state.categories].filter(c=>c&&c.name).sort((a,b)=>a.name.localeCompare(b.name,'de'));
  const merchants=[...state.merchants].filter(m=>m&&m.name).sort((a,b)=>(b.uses||0)-(a.uses||0)||a.name.localeCompare(b.name,'de'));
