@@ -43,7 +43,7 @@ Die Buchungen werden im Browser im IndexedDB-Speicher des jeweiligen Geräts ges
 - `index.html` – komplette App
 - `manifest.webmanifest` – PWA-Metadaten
 - `sw.js` – Offline-Service-Worker
-- `icon.svg` – App-Icon
+- `icon.png` – App-Icon
 - `README.md` – diese Anleitung
 
 ## Hinweis
